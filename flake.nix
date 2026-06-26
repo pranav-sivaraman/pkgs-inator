@@ -26,10 +26,12 @@
       perSystem =
         { pkgs, ... }:
         let
-          localPackages = pkgs.lib.filesystem.packagesFromDirectoryRecursive {
-            inherit (pkgs) callPackage;
-            directory = ./pkgs;
-          };
+          localPackages = pkgs.lib.fix (self:
+            pkgs.lib.filesystem.packagesFromDirectoryRecursive {
+              callPackage = pkgs.lib.callPackageWith (pkgs // self);
+              directory = ./pkgs;
+            }
+          );
         in
         {
           packages = localPackages;

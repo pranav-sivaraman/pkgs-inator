@@ -1,0 +1,6 @@
+# VCS
+.git/
+.jj/
+
+# Nix
+result
