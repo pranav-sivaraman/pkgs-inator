@@ -26,7 +26,8 @@
       perSystem =
         { pkgs, ... }:
         let
-          localPackages = pkgs.lib.fix (self:
+          localPackages = pkgs.lib.fix (
+            self:
             pkgs.lib.filesystem.packagesFromDirectoryRecursive {
               callPackage = pkgs.lib.callPackageWith (pkgs // self);
               directory = ./pkgs;
@@ -34,7 +35,11 @@
           );
         in
         {
-          packages = localPackages;
+          packages =
+            localPackages
+            // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+              libfabric = localPackages.libfabric.override { enableCxi = true; };
+            };
         };
       flake = {
         # The usual flake attributes can be defined here, including system-
