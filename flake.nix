@@ -18,7 +18,7 @@
           };
 
         overrides = final: prev: {
-          cudaPackages = prev.cudaPackages_13_0;
+          cudaPackages = prev.cudaPackages_13_1;
           libfabric = prev.libfabric.override {
             enableCxi = true;
           };
