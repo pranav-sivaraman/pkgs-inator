@@ -10,42 +10,51 @@
     inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        # To import an internal flake module: ./other.nix
-        # To import an external flake module:
-        #   1. Add foo to inputs
-        #   2. Add foo as a parameter to the outputs function
-        #   3. Add here: foo.flakeModule
 
       ];
       systems = [
         "x86_64-linux"
         "aarch64-linux"
-        "aarch64-darwin"
-        "x86_64-darwin"
       ];
       perSystem =
-        { pkgs, ... }:
+        { system, ... }:
         let
-          localPackages = pkgs.lib.fix (
-            self:
+          pkgs = import inputs.nixpkgs {
+            inherit system;
+            config = {
+              allowUnfree = true;
+              cudaSupport = true;
+            };
+            overlays = [
+              (final: prev: {
+                cudaPackages = prev.cudaPackages_13;
+              })
+
+              (
+                final: prev:
+                prev.lib.filesystem.packagesFromDirectoryRecursive {
+                  callPackage = final.callPackage;
+                  directory = ./pkgs;
+                }
+              )
+
+              (final: prev: {
+                libfabric = prev.libfabric.override {
+                  enableCxi = true;
+                };
+              })
+            ];
+          };
+
+          localPackageNames = builtins.attrNames (
             pkgs.lib.filesystem.packagesFromDirectoryRecursive {
-              callPackage = pkgs.lib.callPackageWith (pkgs // self);
+              callPackage = pkgs.callPackage;
               directory = ./pkgs;
             }
           );
         in
         {
-          packages =
-            localPackages
-            // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-              libfabric = localPackages.libfabric.override { enableCxi = true; };
-            };
+          packages = pkgs.lib.genAttrs localPackageNames (name: pkgs.${name});
         };
-      flake = {
-        # The usual flake attributes can be defined here, including system-
-        # agnostic ones like nixosModule and system-enumerating ones, although
-        # those are more easily expressed in perSystem.
-
-      };
     };
 }

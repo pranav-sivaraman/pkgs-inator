@@ -61,6 +61,10 @@ stdenv.mkDerivation (finalAttrs: {
   enableParallelInstalling = true;
   enableParallelChecking = true;
 
+  postInstall = ''
+    rm -f $out/lib/*.la
+  '';
+
   configureFlags = [
     (lib.enableFeatureAs enableCxi "cxi" libcxi)
     (lib.withFeatureAs enableCxi "cassini-headers" cassini-headers)
