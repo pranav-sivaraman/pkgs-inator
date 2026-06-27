@@ -45,6 +45,10 @@ stdenv.mkDerivation (finalAttrs: {
                      ${cassini-headers}/share/cassini-headers/csr_defs.json
   '';
 
+  configureFlags = [
+    "--with-udevrulesdir=no"
+  ];
+
   buildInputs = [
     libconfig
     libuv
