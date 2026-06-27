@@ -7,11 +7,29 @@
   };
 
   outputs =
-    inputs@{ flake-parts, ... }:
+    inputs@{ self, flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
+      flake.overlays = {
+        packages =
+          final: prev:
+          prev.lib.filesystem.packagesFromDirectoryRecursive {
+            callPackage = final.callPackage;
+            directory = ./pkgs;
+          };
 
-      ];
+        overrides = final: prev: {
+          cudaPackages = prev.cudaPackages_13_0;
+          libfabric = prev.libfabric.override {
+            enableCxi = true;
+          };
+        };
+
+        default = inputs.nixpkgs.lib.composeManyExtensions [
+          self.overlays.packages
+          self.overlays.overrides
+        ];
+      };
+
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -26,23 +44,7 @@
               cudaSupport = true;
             };
             overlays = [
-              (final: prev: {
-                cudaPackages = prev.cudaPackages_13_0;
-              })
-
-              (
-                final: prev:
-                prev.lib.filesystem.packagesFromDirectoryRecursive {
-                  callPackage = final.callPackage;
-                  directory = ./pkgs;
-                }
-              )
-
-              (final: prev: {
-                libfabric = prev.libfabric.override {
-                  enableCxi = true;
-                };
-              })
+              self.overlays.default
             ];
           };
 
