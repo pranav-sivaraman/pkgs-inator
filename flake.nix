@@ -27,7 +27,7 @@
             };
             overlays = [
               (final: prev: {
-                cudaPackages = prev.cudaPackages_13;
+                cudaPackages = prev.cudaPackages_13_0;
               })
 
               (
@@ -46,15 +46,17 @@
             ];
           };
 
-          localPackageNames = builtins.attrNames (
-            pkgs.lib.filesystem.packagesFromDirectoryRecursive {
-              callPackage = pkgs.callPackage;
-              directory = ./pkgs;
-            }
-          );
+          image = pkgs.dockerTools.buildLayeredImage {
+            name = "pkgs-inator";
+            tag = "latest";
+            contents = [
+              pkgs.aws-ofi-nccl
+              pkgs.pplx-garden
+            ];
+          };
         in
         {
-          packages = pkgs.lib.genAttrs localPackageNames (name: pkgs.${name});
+          packages.default = image;
         };
     };
 }
