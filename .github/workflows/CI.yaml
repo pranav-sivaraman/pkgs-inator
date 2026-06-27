@@ -10,7 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  hello-world:
+  nix-build:
+    name: Nix build (${{ matrix.runner }})
     strategy:
       matrix:
         runner:
