@@ -36,7 +36,7 @@
           };
         in
         {
-          packages.default = pkgs.libfabric;
+          packages.default = pkgs.fabtests;
         };
 
       flake = {

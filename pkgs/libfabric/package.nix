@@ -6,6 +6,7 @@
   testers,
   pkg-config,
   validatePkgConfig,
+  autoreconfHook,
   providers ? {
     cxi = stdenv.hostPlatform.isLinux;
     sockets = stdenv.hostPlatform.isUnix;
@@ -63,12 +64,13 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-HuKrbrFkYsD+eoNvnfUrjxIwnf7j83dKqTqG9SGo6LE=";
   };
 
-  dontDisableStatic = providers.cxi;
+  patches = lib.optional providers.cxi ./disable-cxi-tests.patch;
 
   nativeBuildInputs = [
     pkg-config
     validatePkgConfig
-  ];
+  ]
+  ++ lib.optional providers.cxi autoreconfHook;
 
   buildInputs =
     lib.concatLists (
@@ -82,14 +84,12 @@ stdenv.mkDerivation (finalAttrs: {
       ) features
     );
 
-  env.NIX_LDFLAGS = lib.optionalString features.cuda ''
-    -L${cudaPackages.cuda_cudart}/lib/stubs
-    -L${lib.getOutput "stubs" cudaPackages.cuda_nvml_dev}/lib/stubs
-  '';
-
   configureFlags =
     lib.mapAttrsToList (provider: enabled: lib.enableFeature enabled provider) providers
-    ++ lib.mapAttrsToList (feature: enabled: lib.withFeature enabled feature) features;
+    ++ lib.mapAttrsToList (feature: enabled: lib.withFeature enabled feature) features
+    ++ [
+      (lib.enableFeature features.cuda "cuda-dlopen")
+    ];
 
   outputs = [
     "out"
