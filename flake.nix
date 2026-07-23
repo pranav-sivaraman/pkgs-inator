@@ -27,7 +27,7 @@
           };
         in
         {
-          packages.default = pkgs.cassini-headers;
+          packages.default = pkgs.cxi-driver;
         };
 
       flake = {
