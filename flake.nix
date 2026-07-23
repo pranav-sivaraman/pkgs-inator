@@ -36,7 +36,7 @@
           };
         in
         {
-          packages.default = pkgs.fabtests;
+          packages.default = pkgs.aws-ofi-nccl;
         };
 
       flake = {
