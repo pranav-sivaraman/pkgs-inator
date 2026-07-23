@@ -17,13 +17,26 @@
       ];
       perSystem =
         {
-          pkgs,
+          system,
           ...
         }:
+        let
+          pkgs = import inputs.nixpkgs {
+            inherit system;
+            overlays = [ inputs.self.overlays.default ];
+          };
+        in
         {
-          packages.default = pkgs.hello;
+          packages.default = pkgs.cassini-headers;
         };
+
       flake = {
+        overlays.default =
+          final: prev:
+          prev.lib.filesystem.packagesFromDirectoryRecursive {
+            inherit (final) callPackage;
+            directory = ./pkgs;
+          };
       };
     };
 }
