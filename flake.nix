@@ -23,11 +23,20 @@
         let
           pkgs = import inputs.nixpkgs {
             inherit system;
-            overlays = [ inputs.self.overlays.default ];
+            overlays = [
+              (final: prev: {
+                cudaPackages = final.cudaPackages_13;
+              })
+              inputs.self.overlays.default
+            ];
+            config = {
+              cudaSupport = true;
+              allowUnfree = true;
+            };
           };
         in
         {
-          packages.default = pkgs.libcxi;
+          packages.default = pkgs.libfabric;
         };
 
       flake = {
