@@ -27,7 +27,7 @@
           };
         in
         {
-          packages.default = pkgs.cxi-driver;
+          packages.default = pkgs.libcxi;
         };
 
       flake = {
