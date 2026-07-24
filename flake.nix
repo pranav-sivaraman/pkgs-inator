@@ -24,19 +24,15 @@
           pkgs = import inputs.nixpkgs {
             inherit system;
             overlays = [
-              (final: prev: {
-                cudaPackages = final.cudaPackages_13;
-              })
               inputs.self.overlays.default
             ];
             config = {
-              rocmSupport = true;
               allowUnfree = true;
             };
           };
         in
         {
-          packages.default = pkgs.aws-ofi-nccl;
+          packages.default = pkgs.libfabric;
         };
 
       flake = {
