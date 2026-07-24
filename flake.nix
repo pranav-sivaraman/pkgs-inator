@@ -30,7 +30,7 @@
               inputs.self.overlays.default
             ];
             config = {
-              cudaSupport = true;
+              rocmSupport = true;
               allowUnfree = true;
             };
           };

@@ -7,6 +7,8 @@
   hwloc,
   cudaSupport ? config.cudaSupport,
   cudaPackages,
+  rocmSupport ? config.rocmSupport,
+  rocmPackages,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -35,10 +37,14 @@ stdenv.mkDerivation (finalAttrs: {
       cuda_cudart
       gdrcopy
     ]
-  );
+  )
+  ++ lib.optionals rocmSupport [
+    rocmPackages.clr
+  ];
 
   configureFlags = [
     (lib.withFeatureAs cudaSupport "cuda" cudaPackages.cuda_cudart) # needed for tests to build properly
+    (lib.withFeatureAs rocmSupport "rocm" rocmPackages.clr)
   ];
 
   meta = {

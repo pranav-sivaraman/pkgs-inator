@@ -44,7 +44,7 @@ let
       cudaPackages.cuda_nvml_dev
     ];
     gdrcopy = [ cudaPackages.gdrcopy ];
-    rocr = [ rocmPackages.rocm-runtime ];
+    rocr = [ rocmPackages.hsakmt ];
   };
 in
 
